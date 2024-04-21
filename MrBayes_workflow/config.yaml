@@ -1,0 +1,59 @@
+
+concatMatrix: ../fastaToTree/allseqs.fas 
+concatMatrixPartitions: ../fastaToTree/allseqs.partitions.txt
+
+# MrBayes
+numberOfGenerations: 40000000
+N_PARALELL_CHAINS: 4
+outgroup: "Perccottus-glenii-1" 
+
+#  concatMatrix: ../fastaToTree/allseqs.fas
+#  concatMatrix_wo_pantanodon: ../fastaToTree/allseqs_wo_pantanodon.fas
+
+
+conservedBlocks:
+  concatMatrix: ../fastaToTree/allseqs.fas
+  concatMatrix_wo_pantanodon: ../fastaToTree/allseqs.fas.wo-pantanodon
+
+
+          # estos ya estan listos
+        #  16S: ../fastaToTree/16S.fasta.out-gb.noSpaces.uniqueId.noGapSeqs
+        #  COX1: ../fastaToTree/COX1.fasta.out-gb.noSpaces.uniqueId.noGapSeqs
+        #  RHO: ../fastaToTree/RHO.fasta.out-gb.noSpaces.uniqueId
+        #  ENC1: ../fastaToTree/ENC1.fasta.out-gb.noSpaces.uniqueId
+        #  CYTB: ../fastaToTree/CYTB.fasta.out-gb.noSpaces.uniqueId.noGapSeqs
+        #  SREB2: ../fastaToTree/SREB2.fasta.out-gb.noSpaces.uniqueId
+        #  GLYT: ../fastaToTree/GLYT.fasta.out-gb.noSpaces.uniqueId
+        #  MYH6: ../fastaToTree/MYH6.fasta.out-gb.noSpaces.uniqueId.noGapSeqs
+        #  ND2: ../fastaToTree/ND2.fasta.out-gb.noSpaces.uniqueId
+        #  RAG1: ../fastaToTree/RAG1.fasta.out-gb.noSpaces.uniqueId
+        #  SH3PX3: ../fastaToTree/SH3PX3.fasta.out-gb.noSpaces.uniqueId
+        #  X-SRC: ../fastaToTree/X-SRC.fasta.out-gb.noSpaces.uniqueId
+
+refProts:
+  16S: 16S.refProt.faa
+  COX1: COX1.refProt.faa
+  RHO: RHO.refProt.faa
+  ENC1: ENC1.refProt.faa
+  CYTB: CYTB.refProt.faa
+  SREB2: SREB2.refProt.faa
+  GLYT: GLYT.refProt.faa
+  MYH6: MYH6.refProt.faa
+  ND2: ND2.refProt.faa
+  RAG1: RAG1.refProt.faa
+  SH3PX3: SH3PX3.refProt.faa
+  X-SRC: X-SRC.refProt.faa
+
+isCoding:
+  16S: "no" 
+  COX1: "yes"
+  RHO: "yes"
+  ENC1: "yes"
+  CYTB: "yes"
+  SREB2: "yes"
+  GLYT: "yes"
+  MYH6: "yes"
+  ND2: "yes"
+  RAG1: "yes"
+  SH3PX3: "yes"
+  X-SRC: "yes"

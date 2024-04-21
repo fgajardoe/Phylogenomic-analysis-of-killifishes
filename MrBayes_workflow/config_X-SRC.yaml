@@ -1,0 +1,85 @@
+
+concatMatrix: ../fastaToTree/allseqs.fas 
+concatMatrixPartitions: ../fastaToTree/allseqs.partitions.txt
+
+# MrBayes
+numberOfGenerations: 10000000
+N_PARALELL_CHAINS: 4
+outgroup: "Sphaeramia-orbicularis-1" 
+
+  #conservedBlocksForMrBayes: ["16S", "COX1","RHO", "ENC1", "CYTB", "SREB2","GLYT", "MYH6", "ND2", "RAG1", "SH3PX3","X-SRC", "concatMatrix"]
+
+
+conservedBlocksForMrBayes:
+  16S: ../fastaToTree/16S.fasta.out-gb.noSpaces.uniqueId
+  COX1: ../fastaToTree/COX1.fasta.out-gb.noSpaces.uniqueId
+  RHO: ../fastaToTree/RHO.fasta.out-gb.noSpaces.uniqueId
+  ENC1: ../fastaToTree/ENC1.fasta.out-gb.noSpaces.uniqueId
+  CYTB: ../fastaToTree/CYTB.fasta.out-gb.noSpaces.uniqueId
+  SREB2: ../fastaToTree/SREB2.fasta.out-gb.noSpaces.uniqueId
+  GLYT: ../fastaToTree/GLYT.fasta.out-gb.noSpaces.uniqueId
+  MYH6: ../fastaToTree/MYH6.fasta.out-gb.noSpaces.uniqueId
+  ND2: ../fastaToTree/ND2.fasta.out-gb.noSpaces.uniqueId
+  RAG1: ../fastaToTree/RAG1.fasta.out-gb.noSpaces.uniqueId
+  SH3PX3: ../fastaToTree/SH3PX3.fasta.out-gb.noSpaces.uniqueId
+  X-SRC: ../fastaToTree/X-SRC.fasta.out-gb.noSpaces.uniqueId
+#  concatMatrix: ../fastaToTree/allseqs.fas
+#  concatMatrix_wo_pantanodon: ../fastaToTree/allseqs_wo_pantanodon.fas
+
+partitionFinderFoldersForMrBayes:
+  16S: ./partitionFinderFolder_16S
+  COX1: ./partitionFinderFolder_COX1
+  RHO: ./partitionFinderFolder_RHO
+  ENC1: ./partitionFinderFolder_ENC1
+  CYTB: ./partitionFinderFolder_CYTB
+  SREB2: ./partitionFinderFolder_SREB2
+  GLYT: ./partitionFinderFolder_GLYT
+  MYH6: ./partitionFinderFolder_MYH6
+  ND2: ./partitionFinderFolder_ND2
+  RAG1: ./partitionFinderFolder_RAG1
+  SH3PX3: ./partitionFinderFolder_SH3PX3
+  X-SRC: ./partitionFinderFolder_X-SRC
+#  concatMatrix: ./partitionFinderFolder_concatMatrix
+#  concatMatrix_wo_pantanodon: ./partitionFinderFolder_concatMatrix
+
+conservedBlocks:
+  16S: ../fastaToTree/16S.fasta.out-gb.noSpaces.uniqueId
+  COX1: ../fastaToTree/COX1.fasta.out-gb.noSpaces.uniqueId
+  RHO: ../fastaToTree/RHO.fasta.out-gb.noSpaces.uniqueId
+  ENC1: ../fastaToTree/ENC1.fasta.out-gb.noSpaces.uniqueId
+  CYTB: ../fastaToTree/CYTB.fasta.out-gb.noSpaces.uniqueId
+  SREB2: ../fastaToTree/SREB2.fasta.out-gb.noSpaces.uniqueId
+  GLYT: ../fastaToTree/GLYT.fasta.out-gb.noSpaces.uniqueId
+  MYH6: ../fastaToTree/MYH6.fasta.out-gb.noSpaces.uniqueId
+  ND2: ../fastaToTree/ND2.fasta.out-gb.noSpaces.uniqueId
+  RAG1: ../fastaToTree/RAG1.fasta.out-gb.noSpaces.uniqueId
+  SH3PX3: ../fastaToTree/SH3PX3.fasta.out-gb.noSpaces.uniqueId
+  X-SRC: ../fastaToTree/X-SRC.fasta.out-gb.noSpaces.uniqueId
+
+refProts:
+  16S: 16S.refProt.faa
+  COX1: COX1.refProt.faa
+  RHO: RHO.refProt.faa
+  ENC1: ENC1.refProt.faa
+  CYTB: CYTB.refProt.faa
+  SREB2: SREB2.refProt.faa
+  GLYT: GLYT.refProt.faa
+  MYH6: MYH6.refProt.faa
+  ND2: ND2.refProt.faa
+  RAG1: RAG1.refProt.faa
+  SH3PX3: SH3PX3.refProt.faa
+  X-SRC: X-SRC.refProt.faa
+
+isCoding:
+  16S: "no" 
+  COX1: "yes"
+  RHO: "yes"
+  ENC1: "yes"
+  CYTB: "yes"
+  SREB2: "yes"
+  GLYT: "yes"
+  MYH6: "yes"
+  ND2: "yes"
+  RAG1: "yes"
+  SH3PX3: "yes"
+  X-SRC: "yes"

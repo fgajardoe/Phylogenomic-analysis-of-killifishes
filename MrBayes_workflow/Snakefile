@@ -1,0 +1,154 @@
+def get_conserved_blocks(wildcards):
+	return config["conservedBlocks"][wildcards.sequences]
+
+
+def get_refProts(wildcards):
+	return config["refProts"][wildcards.sequences]
+
+def get_isCoding(wildcards):
+	return config["isCoding"][wildcards.sequences]
+
+#def get_conserved_blocks_forMrBayes(wildcards):
+#	return config["conservedBlocksForMrBayes"][wildcards.sequences]
+
+def get_partitionFinderFolders_forMrBayes(wildcards):
+	return config["partitionFinderFoldersForMrBayes"][wildcards.sequences]+str("/analysis/best_scheme.txt")
+
+
+
+
+rule all_runMrBayes:
+	input:
+		expand("{sequences}.w-MrBayes-block.nexus.mcmc",sequences=config["conservedBlocks"])
+	output:
+		touch("all_runMrBayes.done")
+
+rule all_partitionFinderCFG:
+	input:
+		expand("partitionFinderFolder_{sequences}/partition_finder.cfg",sequences=config["conservedBlocks"])
+	output:
+		touch("all_partitionFinderCFG.done")
+
+rule all_partitionFinder:
+	input:
+		expand("partitionFinderFolder_{sequences}/analysis/best_scheme.txt",sequences=config["conservedBlocks"]),
+	output:
+		touch("all_partitionFinder.done")
+
+		
+
+rule onlyCFGconcatMatrix:
+	input:
+		"partitionFinderFolder_concatMatrix/partition_finder.cfg"
+	output:
+		touch("onlyCFGconcatMatrix.done")
+		
+
+
+rule fastaBlocksToPhy:
+	input:
+		get_conserved_blocks
+	output:
+		"{sequences}.phy"
+	shell:
+		"perl utils/fasta2phylip.pl {input} {wildcards.sequences}.phy"
+		#"perl utils/fasta2phylip.pl {input} partitionFinderFolder_{wildcards.sequences}/{wildcards.sequences}.phy"
+
+rule fastaBlocksConcatMatrixToPhy:
+	input:
+		config["concatMatrix"]
+	output:
+		"concatMatrix.phy"
+	shell:
+		"perl utils/fasta2phylip.pl {input} {output}"
+
+
+rule getPartitionfinderCFGfile:
+	input:
+		gblocks=get_conserved_blocks,
+		phy="{sequences}.phy"
+	params:
+		isCoding=get_isCoding,
+		#wrkdir="partitionFinderFolder_{sequences}",
+		refprot=get_refProts
+	output: 
+		"partitionFinderFolder_{sequences}/partition_finder.cfg"
+#	conda:
+#		"envs/partitionFinder.yaml"
+	shell:
+		"sh utils/generatePartitionfinderCFGfile.sh {input.gblocks} {params.refprot} {wildcards.sequences} {params.isCoding}"
+		#"sh utils/generatePartitionfinderCFGfile.sh {input.gblocks} {params.refprot} {params.wrkdir} {params.isCoding}"
+
+		
+rule getPartitionfinderCFGfile_concatMatrix:
+	input: 
+		par=config["concatMatrixPartitions"],
+		phy="concatMatrix.phy"
+	output:
+		"partitionFinderFolder_concatMatrix/partition_finder.cfg"
+	shell:
+		" mv {input.phy} partitionFinderFolder_concatMatrix/. && sh utils/produceConcatMatrixPartitionFinderCFGtemplate.sh {input.par} > {output}"
+
+
+rule runPartitionfinder:
+	input:
+		"partitionFinderFolder_{sequences}/"
+	output:
+		"partitionFinderFolder_{sequences}/analysis/best_scheme.txt"
+	conda: 
+		"utils/envs/partitionFinder.yaml"
+	shell:
+		"python utils/partitionfinder-2.1.1/PartitionFinder.py --no-ml-tree {input}"
+
+
+rule runPartitionfinder_concatMatrix:
+	input:
+		"partitionFinderFolder_concatMatrix/"
+	output:
+		"partitionFinderFolder_concatMatrix/analysis/best_scheme.txt"
+	conda: 
+		"utils/envs/partitionFinder.yaml"
+	shell:
+		"python utils/partitionfinder-2.1.1/PartitionFinder.py --no-ml-tree {input}"
+
+
+rule produceNexusForMrBayes:
+	input:
+		gblocks=get_conserved_blocks,
+		bestScheme="partitionFinderFolder_{sequences}/analysis/best_scheme.txt"
+	params:
+		ngen=config["numberOfGenerations"],
+		outgroup=config["outgroup"]
+	output:
+		"{sequences}.w-MrBayes-block.nexus"
+	shell:
+		"sh utils/produceNexusForMrBayes.sh {input.gblocks} {input.bestScheme} {params} {wildcards.sequences}"
+
+
+MBAYES_EXEC="utils/mrbayes-3.2.7_PARALLEL/src/mb"
+#MBAYES_EXEC="utils/mrbayes-3.2.7_impi/src/mb"
+rule runMrbayes:
+	input:
+		"{sequences}.w-MrBayes-block.nexus"
+	output:
+		touch("{sequences}.mrBayes.done")
+		#"{sequences}.w-MrBayes-block.nexus.mcmc",
+		#"{sequences}.w-MrBayes-block.nexus.run1.p",
+		#"{sequences}.w-MrBayes-block.nexus.run1.t",
+		#"{sequences}.w-MrBayes-block.nexus.run2.p",
+		#"{sequences}.w-MrBayes-block.nexus.run2.t",
+		#"{sequences}.w-MrBayes-block.nexus.con.tre",
+		#"{sequences}.w-MrBayes-block.nexus.parts",
+		#"{sequences}.w-MrBayes-block.nexus.trprobs",
+		##"{sequences}.w-MrBayes-block.nexus.tstats",
+		##"{sequences}.w-MrBayes-block.nexus.vstats"
+
+	threads: config["N_PARALELL_CHAINS"]
+	shell:
+		"srun -np {threads} "+MBAYES_EXEC+" {input}"
+		#"mpirun -np {threads} "+MBAYES_EXEC+" {input}"
+
+
+
+
+

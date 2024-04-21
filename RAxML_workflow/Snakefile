@@ -1,0 +1,138 @@
+#CONTAINER_CMD="docker run -v `pwd`:/home/user fgajardoe/phylogenomic-analysis-container "
+CONTAINER_CMD="singularity exec -B `pwd`:/home/user phylogenomic-analysis-container_latest.sif "
+RAXML_EXEC_PATH="/home/pmorales/fastaToTree/standard-RAxML-8.2.12/raxmlHPC-PTHREADS-SSE3"
+
+def get_input(wildcards):
+    return config["genes"][wildcards.gene]
+
+rule all:
+	input:
+		"RAxML_bestTree.RAxML"
+
+#	 	"allseqs.fas"
+#        input: expand("{gene}.fasta.out-gb",gene=config["genes"])
+
+
+
+rule all_getTreeForEachGene:
+	input:
+		expand("RAxML_bestTree.{gene}.RAxML",gene=config["genes"])
+	output:
+		touch("treeForEachGene.done")
+
+rule all_getBlocks:
+	input:
+		expand("{gene}.fasta.out-gb.noSpaces.uniqueId.noGapSeqs",gene=config["genes"])
+	output:
+		touch("blocks.done")
+
+rule clean:
+	output: touch("clean.done")
+	shell: "rm *out *out-gb *noSpaces *uniqueId *out-gb.htm RAxML_* cat_list.lst allseqs*"
+
+rule runMSA:
+	input:
+		get_input
+	params:
+		"--maxiterate 1000 --localpair --nuc"
+	output:
+		"{gene}.fasta.out"
+	shell:
+		CONTAINER_CMD+" /opt/mafft-linux64/mafft.bat {params} {input} > {output}"
+
+
+rule getBlocks:
+	input:
+		"{gene}.fasta.out"
+	params:
+		"-t=d -b5=h"
+	output:
+		"{gene}.fasta.out-gb"
+	shell: CONTAINER_CMD+" sh -c '/opt/Gblocks_0.91b/Gblocks {input} {params} > /dev/null; exit 0 ' "
+
+
+rule removeSpaces:
+	input: 
+		"{gene}.fasta.out-gb"
+	output:
+		"{gene}.fasta.out-gb.noSpaces"
+	shell:
+		"less {input} |perl -ne'if(/^>/){{s/ /-/g; @a=split(\"_\",$_); print $a[0].\"\n\"; }}else{{s/ //g; print $_; }}' > {output}"
+
+rule manageRedundancy:
+	input:
+		"{gene}.fasta.out-gb.noSpaces"
+	output:
+		"{gene}.fasta.out-gb.noSpaces.uniqueId"
+	shell:
+		"less {input} | awk '{{if(/^>/){{ d[$0]=d[$0]+1; print $0\"-\"d[$0]}}else{{print $0}}}}' > {output}"
+
+
+rule removeFullGapSequencesFromBlock:
+	input:
+		"{gene}.fasta.out-gb.noSpaces.uniqueId"
+	output:
+		out="{gene}.fasta.out-gb.noSpaces.uniqueId.noGapSeqs",
+		err="{gene}.fasta.out-gb.noSpaces.uniqueId.emptyBlocksSeqs"
+	shell:
+		"less {input} |grep -Pe'^>' |cut -c2- |seqtk subseq -t {input} - |cut -f1,3 |perl -ne 'my @cols=split(\"\t\",$_); $lenSeq=length($cols[1]); my $count = () = $cols[1] =~ /-/g; $count=$count+1; if($lenSeq != $count){{print \">\".$cols[0].\"\n\".$cols[1].\"\n\"}} if($lenSeq == $count){{print STDERR $cols[0].\"\n\"}}' > {output.out} 2>{output.err}"
+
+
+rule generateGeneListForCat:
+	output:
+		"cat_list.lst"
+	shell:
+		"echo "+str(expand("{gene}.fasta.out-gb.noSpaces.uniqueId.noGapSeqs",gene=config["genes"]))+" | perl -pe\"s/[\[\]']//g; s/,/\\n/g\" | perl -pe's/ //g' > {output}"
+
+rule runCatSequences:
+	input:
+		lst="cat_list.lst",
+		blocks=expand("{gene}.fasta.out-gb.noSpaces.uniqueId.noGapSeqs",gene=config["genes"]),
+	output:
+		"allseqs.fas",
+		"allseqs.partitions.txt"
+	shell:
+		"./catsequences {input.lst}"
+
+rule buildTreeWithOutgroup:
+	input:
+		aln="allseqs.fas"
+	params:
+		bootstrap=config["bootstrap"],
+		model=config["model"],
+		sufix="allseqs.RAxML",
+		other=config["other"],
+		outgroup=config["outgroup"]
+	output:
+		bestTreeOut="RAxML_bestTree.allseqs.RAxML",
+		bootstrapOut="RAxML_bootstrap.allseqs.RAxML"
+	threads: config["NCPU"]
+	shell:
+		RAXML_EXEC_PATH+" -s {input.aln} -n {params.sufix} -N {params.bootstrap} -m {params.model} -o '{params.outgroup}' -T {threads} {params.other}"
+
+rule all_buildTreeWithOutgroupEachGene:
+	input:
+		expand("RAxML_bestTree.{gene}.RAxML",gene=config["genes"])
+	output:
+		touch("all_buildTreeWithOutgroupEachGene.done")
+
+def get_outgroup(wildcards):
+    return config["outgroups"][wildcards.gene]
+
+rule buildTreeWithOutgroupEachGene:
+	input:
+		"{gene}.fasta.out-gb.noSpaces.uniqueId.noGapSeqs"
+	params:
+		bootstrap=config["bootstrap"],
+		model=config["model"],
+		sufix="{gene}.RAxML",
+		other=config["other"],
+		outgroup=get_outgroup
+		#outgroup=config["outgroup"]
+	output:
+		bestTreeOut="RAxML_bestTree.{gene}.RAxML",
+		bootstrapOut="RAxML_bootstrap.{gene}.RAxML"
+	threads: config["NCPU"]
+	shell:
+		RAXML_EXEC_PATH+" -s {input} -n {params.sufix} -N {params.bootstrap} -m {params.model} -o '{params.outgroup}' -T {threads} {params.other}"
+

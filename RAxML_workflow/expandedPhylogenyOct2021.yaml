@@ -1,0 +1,37 @@
+# RaxML parameters
+#outgroup: "Atherinomorus-lacunosus-1"
+outgroup: "Perccottus-glenii-1"
+bootstrap: "1000"
+model: "GTRGAMMA"
+other: "-f a -x 12345 -p 12345 --bootstop-perms 10000"
+NCPU: 10
+genes:
+  16S: genes/16S.gene.fasta
+  COX1: genes/COX1.gene.fasta
+  RHO: genes/Rho.gene.fasta
+  ENC1: genes/enc1.gene.fasta
+  CYTB: genes/Cytb.gene.fasta
+  RHO: genes/Rho.gene.fasta
+  SREB2: genes/SREB2.gene.fasta
+  GLYT: genes/GLYT.gene.fasta
+  MYH6: genes/myh6.gene.fasta
+  ND2: genes/ND2.gene.fasta
+  RAG1: genes/RAG1.gene.fasta
+  SH3PX3: genes/Sh3px3.gene.fasta
+  X-SRC: genes/x-src.gene.fasta
+
+outgroups:
+  16S: "Perccottus-glenii-1"
+  COX1: "Perccottus-glenii-1"
+  RHO: "Perccottus-glenii-1"
+  ENC1: "Perccottus-glenii-1"
+  CYTB: "Perccottus-glenii-1"
+  RHO: "Perccottus-glenii-1"
+  SREB2: "Perccottus-glenii-1"
+  GLYT: "Perccottus-glenii-1"
+  MYH6: "Perccottus-glenii-1"
+  ND2: "Perccottus-glenii-1"
+  RAG1: "Perccottus-glenii-1"
+  SH3PX3: "Perccottus-glenii-1"
+  X-SRC: "Sphaeramia-orbicularis-1"
+
